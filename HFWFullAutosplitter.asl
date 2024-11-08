@@ -108,9 +108,10 @@ startup{
             splitObject.Type == "cutscene"
         ){
             // Checks if timer is actually running:
-            if (timer.CurrentAttemptDuration.TotalMilliseconds > 0){
+            if (timer.CurrentPhase == TimerPhase.Running){
                 vars.timerController.Split();
                 splitObject.reachedBefore = true;
+                print("SPLIT: " + splitObject.Name);
             }
         }
     });
@@ -118,7 +119,7 @@ startup{
     // Contains de autosplitter settings:
     dynamic[,] _settings = {
         // Main game
-        // ID, Label, Tool tip, Parent ID, Default setting?, Flag pointer, Coordinates-radius, extra(starting point/stop point/cutscene/loading screen)
+        // ID, Label, Tool tip, Parent ID, Default setting?
         {"main_game", "Main game", "Main game splits", null, true},
             // STARTING POINTS
             {"mg_starting_points", "Starting points", "Select when livesplit will start the timer", "main_game", true},
@@ -150,7 +151,7 @@ startup{
                     {"latopolis_orb", "Follow the Orb's Trail", "After interacting with the orb", "deaths_door", true},
                     {"latopolis_firegleam1", "Ignite the Firegleam 1", "After interacting with the firegleam", "deaths_door", true},
                     {"latopolis_hatch", "Gene-Locked Hatch", "After interacting with the Gene-Locked Hatch", "deaths_door", true},
-                    {"latopolis_fight_ending", "Erik fight finishes", "After Erik fight", "deaths_door", true},
+                    // {"latopolis_fight_ending", "Erik fight finishes", "After Erik fight", "deaths_door", true},
                     {"latopolis_firegleam2", "Ignite the Firegleam 2", "After interacting with the firegleam", "deaths_door", true},
                     {"deaths_door_end", "Death's Door quest completion", "After all the cutscenes", "deaths_door", true},
                 // THE DYING LANDS
@@ -283,104 +284,101 @@ init{
      // Contains de autosplitter checkpoints:
     dynamic[,] _checkpoints = {
         // Main game
-            // STARTING POINTS
-                // NEW GAME+
-                // TO THE BRINK
-                // SceneManagerGame
-                // {"NGP_start", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0x1770, 0x1140, 0x16E1), null, "start"},
-                {"NGP_start", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0x1770, 0x1140, 0x16E1), null, "start"},
-                    {"chainscrape_entrance", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x1E0, 0x321), null, null},
-                    {"find_erend", null, new double[]{3441.31976318359, 152.444046020508, 497.432891845703, 3}, "cutscene"},
-                    {"scroungers", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0xDB8, 0xE61), null, null},
-                    {"ttb_talk_to_erend", null, new double[]{3477.35439284111, 132.332308891053, 495.012863606143, 2}, null},
-                    {"clear_the_daunt", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0x9B0, 0x888, 0xBA1), null, null},
-                    {"chainscrape_campfire", null, new double[]{3503.09459523606, 634.741075281604, 496.060607537627, 0.5}, null},
-                    {"talk_to_ulvund", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x2A8, 0x518, 0x4A1), null, null},
-                    {"to_the_brink_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0x180, 0x930, 0x8D0, 0x239), null, null},
-                // THE EMBASSY
-                    {"ft_barren_light_campfire", null, new double[]{3040.32467007056, 17.4176695265878, 465.806756163831, 0.5}, null},
-                    {"ft_barren_light_entrance", null, new double[]{3067.86202363374, 29.2769007543735, 465.452685935666, 0.5}, null},
-                    {"barren_light_guards", null, new double[]{3002.35785949576, -41.6765262664212, 460.219214364889, 1}, null},
-                    {"commander_ozar", null, new double[]{2991.17514877998, -52.8676416632364, 478.43438106914, 1}, null},
-                    {"after_ambush", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0x708, 0xDD8, 0xC41), null, null},
-                // DEATH'S DOOR
-                    {"ft_tallkneck_cinnabar_sands", null, new double[]{2104.00830694698, -263.949649523822, 450.753540039062, 0.5}, null},
-                    {"workshop_console", null, new double[]{1882.06305419515, -886.340802022707, 398.268561203955, 20}, "cutscene"},
-                    {"latopolis_orb", null, new double[]{1419.53016905987, -1067.06460825383, 419.140068532041, 1}, null},
-                    {"latopolis_firegleam1", null, new double[]{1407.47410455747, -1055.19197075368, 419.233367919912, 1}, null},
-                    {"latopolis_hatch", null, new double[]{1317.90443750157, -957.90438052909, 427.137498855591, 1}, null},
-                    {"latopolis_fight_ending", null, new double[]{1279.18542480469, -912.010620117188, 428.282501220703, 3}, null},
-                    {"latopolis_firegleam2", null, new double[]{1167.81559193197, -1016.70593891713, 382.643293593338, 3}, null},
-                    {"deaths_door_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0xE38, 0x9D0, 0x951), null, null},
-                // THE DYING LANDS
-                    {"ft_campfire_cinnabar_sands", null, new double[]{2087.25383485531, -253.908564715671, 450.657012939452, 1}, null},
-                    {"tdl_varl_and_zo2", null, new double[]{1826.52198698616, 97.3018469927963, 474.47509765625, 1}, null},
-                    {"tau_door", null, new double[]{1316.74923604789, -63.4205509014469, 506.636282503605, 1}, null},
-                    {"tau_core_bay", null, new double[]{1205.16775083477, -136.799048344064, 511.843992233614, 3}, null},
-                    {"tau_core", null, new double[]{1204.66921516848, -182.61169032363, 499.119144171476, 3}, null},
-                    {"tdl_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0x180, 0x738, 0x688, 0x239), null, null},
-                // THE EYE OF THE EARTH
-                    {"eote_minerva_console", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0xCB0, 0x811), null, null},
-                    {"eote__end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0xE48, 0x158, 0x3B1), null, null},
-                // THE SEA OF SANDS
-                    {"compressed_air_capsule", null, new double[]{168.197416841984, -1755.24666068276, 361.263234436512, 3}, null},
-                    {"diving_mask", null, new double[]{178.927001953126, -1750.46426391601, 379.8254109025, 0.5}, null},
-                    {"main_pump", null, new double[]{330.186260598925, -1928.74938051968, 321.2208007395, 3}, "cutscene"},
-                    {"recover_poseidon", null, new double[]{375.885487531169, -1607.85799177243, 290.981842041016, 3}, "cutscene"},
-                    {"las_vegas_exit", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0xDC0, 0x5A8, 0xD99), null, null},
-                    {"tsos_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x4F0, 0x1D0, 0x3F1), null, null},
-                // THE BROKEN SKY
-                    {"throne_room", null, new double[]{-633.393053667102, -718.194006942366, 421.632792890072, 3}, null},
-                    {"tbs_talk_to_kotallo1", null, new double[]{-1319.54060840607, 552.306657314301, 505.025085449219, 3}, null},
-                    {"tbs_kotallo_skip", null, new double[]{-1722.13291072914, 391.312653769435, 404.777789474833, 1.5}, null},
-                    {"bulwark_guards", null, new double[]{-1713.9067993164, 299.763214111328, 445.635046988725, 3}, null},
-                    {"tbs_talk_to_kotallo2", null, new double[]{-1729.97919063644, 457.684209887134, 370.633636476527, 1.5}, null},
-                    {"loot_the_tremortusk", null, new double[]{-1572.0311859101, 652.102480441332, 383.739666610956, 3}, "cutscene"},
-                    {"broken_sky_end", new DeepPointer("HorizonForbiddenWest.exe", GameModule,  0x178, 0x10, 0xE0, 0xF68, 0x321), null, null},
-                // SEEDS OF THE PAST
-                    {"green_house", null, new double[]{-2296.29821777344, -324.549560546875, 264.058563187719, 5}, null},
-                    {"console1_active", null, new double[]{-2431.87329865314, -180.895613586446, 274.75841699494, 2.5}, null},
-                    {"console2_room", null, new double[]{-2432.61199035513, -299.38409430339, 262.721442762085, 2.5}, null},
-                    {"console2_active", null, new double[]{-2436.56268157932, -309.137984056258, 262.734527587883, 2.5}, null},
-                    {"tunnel1_exit", null, new double[]{-2327.60716285157, -209.519637505797, 261.275722026825, 2.5}, null},
-                    {"station_elm_console", null, new double[]{-2374.6553970255, -70.9116399555847, 268.349670410156, 2.5}, null},
-                    {"test_station_ivy", null, new double[]{-2448.1122551441, -101.469541747108, 259.844213518525, 2.5}, null},
-                    {"recover_demeter", null, new double[]{-2434.22285265303, -152.158308535442, 267.041717529297, 2.5}, null},
-                    {"sotp_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame,  0xE0, 0xF40, 0xB00, 0x411), null, null},
-                // CRADLE OF ECHOES
-                    {"coe_console2", null, new double[]{543.435203280978, 1292.08648603277, 587.041625976563, 2.5}, null},
-                    {"coe_specter2", null, new double[]{484.638608932776, 1024.18652343813, 611.554178953421, 2.5}, null},
-                // THE KULRUT
-                    {"ft_memorial_grove", null, new double[]{-536.684509277344, -689.538696289062, 417.407958984376, 3}, null},
-                    {"k_talk_to_hekarro", null, new double[]{-709.586461823186, -669.095686835261, 421.782592773438, 3}, null},
-                    {"k_machines", null, new double[]{-698.937885912758, -501.705726107, 435.614677124375, 0.5}, null},
-                    {"k_Slitherfang", null, new double[]{-707.209045410156, -640.884094238281, 402.438415676355, 0.5}, null},
-                    {"recover_aether", null, new double[]{-645.642142567462, -724.19342025944, 410.129646779969, 3}, null},
-                    {"kulrut_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x10D0, 0x178, 0x651), null, null},
-                // FARO'S TOMB
-                    {"fst_boat", null, new double[]{-2991.05639648438, -1676.1176147461, 256.294574439526, 3}, null},
-                    {"fst_legacys_landfall", null, new double[]{-3952.04347568689, -926.8164166615, 260.915409140938, 3}, null},
-                    {"fst_talk_to_alva", null, new double[]{-4124.05110842, -756.899763504, 257.224526367, 3}, null},
-                    {"fst_entrance_skip", null, new double[]{-4261.75767201338, -806.785997355906, 211.430053710936, 3}, null},
-                    {"fst_Corruptors", null, new double[]{-4320.63626606234, -752.726599781282, 195.796744658954, 3}, null},
-                    {"fst_omega_clearance", null, new double[]{-4347.25270207781, -701.263439108375, 171.529212629922, 3}, null},
-                    {"faros_tomb_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x560, 0x321), null, null},
-                // GEMINI
-                    {"g_gemini", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0x4B0, 0xFD8, 0x580, 0x321), null, null},
-                    {"g_node1", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0xFC8, 0xB48, 0xEF1), null, null},
-                    {"g_talk_to_beta", null, new double[]{-374.452293072273, -417.939213925904, 327.954232309294, 3}, null},
-                // THE WINGS OF THE TEN
-                    {"wott_sunwing_override", null, new double[]{1094.35817246086, -198.300083576356, 633.342505225047, 3}, null},
-                    {"wott_memorial_grove", null, new double[]{-413.217704414023, -640.549513548812, 449.7227159445, 5}, null},
-                    // {"wott_regalla1", null, new double[]{-737.683959960938, -673.44642496109, 425.838824272156, 3}, "cutscene"},
-                    // {"wott_regalla2", null, new double[]{-753.797096789197, -646.943957527048, 418.178100141256, 3}, "cutscene"},
-                    // {"wott_regalla3", null, new double[]{-725.179475660616, -637.337163086555, 402.654195853353, 3}, "cutscene"},
-                    {"wings_of_the_ten_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0xED8, 0x4F0, 0xA61), null, null},
-                // SINGULARITY
-                    {"s_shield_skip", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x1E8, 0xE18, 0x791), null, null},
-                    {"kill_erik", null, new double[]{-1749.25894069672, -2938.75882327557, 275.52651977539, 3}, null},
-                    {"s_tower_top", null, new double[]{-1756.16803004627, -2949.95112186803, 385.631804418408, 3}, null},
-                    {"s_defeat_tilda", null, new double[]{-1771.61556974602, -2921.03838795219, 380.99396117125, 3}, null}
+            // NEW GAME+ starting point
+            {"NGP_start", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0x1770, 0x1140, 0x16E1), null, "start"},
+            // TO THE BRINK
+                {"chainscrape_entrance", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x1E0, 0x321), null, null},
+                {"find_erend", null, new double[]{3441.31976318359, 152.444046020508, 497.432891845703, 3}, "cutscene"},
+                {"scroungers", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0xDB8, 0xE61), null, null},
+                {"ttb_talk_to_erend", null, new double[]{3477.35439284111, 132.332308891053, 495.012863606143, 2}, null},
+                {"clear_the_daunt", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0x9B0, 0x888, 0xBA1), null, null},
+                {"chainscrape_campfire", null, new double[]{3503.09459523606, 634.741075281604, 496.060607537627, 0.5}, null},
+                {"talk_to_ulvund", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x2A8, 0x518, 0x4A1), null, null},
+                {"to_the_brink_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0x180, 0x930, 0x8D0, 0x239), null, null},
+            // THE EMBASSY
+                {"ft_barren_light_campfire", null, new double[]{3040.32467007056, 17.4176695265878, 465.806756163831, 0.5}, null},
+                {"ft_barren_light_entrance", null, new double[]{3067.86202363374, 29.2769007543735, 465.452685935666, 0.5}, null},
+                {"barren_light_guards", null, new double[]{3002.35785949576, -41.6765262664212, 460.219214364889, 1}, null},
+                {"commander_ozar", null, new double[]{2991.17514877998, -52.8676416632364, 478.43438106914, 3}, null},
+                {"after_ambush", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0x708, 0xDD8, 0xC41), null, null},
+            // DEATH'S DOOR
+                {"ft_tallkneck_cinnabar_sands", null, new double[]{2104.00830694698, -263.949649523822, 450.753540039062, 0.5}, null},
+                {"workshop_console", null, new double[]{1882.06305419515, -886.340802022707, 398.268561203955, 20}, "cutscene"},
+                {"latopolis_orb", null, new double[]{1419.53016905987, -1067.06460825383, 419.140068532041, 1}, null},
+                {"latopolis_firegleam1", null, new double[]{1407.47410455747, -1055.19197075368, 419.233367919912, 1}, null},
+                {"latopolis_hatch", null, new double[]{1317.90443750157, -957.90438052909, 427.137498855591, 1}, null},
+                // {"latopolis_fight_ending", null, new double[]{1279.18542480469, -912.010620117188, 428.282501220703, 3}, null},
+                {"latopolis_firegleam2", null, new double[]{1167.81559193197, -1016.70593891713, 382.643293593338, 3}, null},
+                {"deaths_door_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0xE38, 0x9D0, 0x951), null, null},
+            // THE DYING LANDS
+                {"ft_campfire_cinnabar_sands", null, new double[]{2087.25383485531, -253.908564715671, 450.657012939452, 1}, null},
+                {"tdl_varl_and_zo2", null, new double[]{1826.52198698616, 97.3018469927963, 474.47509765625, 1}, null},
+                {"tau_door", null, new double[]{1316.74923604789, -63.4205509014469, 506.636282503605, 1}, null},
+                {"tau_core_bay", null, new double[]{1205.16775083477, -136.799048344064, 511.843992233614, 3}, null},
+                {"tau_core", null, new double[]{1204.66921516848, -182.61169032363, 499.119144171476, 3}, null},
+                {"tdl_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0x180, 0x738, 0x688, 0x239), null, null},
+            // THE EYE OF THE EARTH
+                {"eote_minerva_console", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0xCB0, 0x811), null, null},
+                {"eote__end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0xE48, 0x158, 0x3B1), null, null},
+            // THE SEA OF SANDS
+                {"compressed_air_capsule", null, new double[]{168.197416841984, -1755.24666068276, 361.263234436512, 3}, null},
+                {"diving_mask", null, new double[]{178.927001953126, -1750.46426391601, 379.8254109025, 0.5}, null},
+                {"main_pump", null, new double[]{330.186260598925, -1928.74938051968, 321.2208007395, 3}, "cutscene"},
+                {"recover_poseidon", null, new double[]{375.885487531169, -1607.85799177243, 290.981842041016, 3}, "cutscene"},
+                {"las_vegas_exit", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0xDC0, 0x5A8, 0xD99), null, null},
+                {"tsos_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x4F0, 0x1D0, 0x3F1), null, null},
+            // THE BROKEN SKY
+                {"throne_room", null, new double[]{-633.393053667102, -718.194006942366, 421.632792890072, 3}, null},
+                {"tbs_talk_to_kotallo1", null, new double[]{-1319.54060840607, 552.306657314301, 505.025085449219, 3}, null},
+                {"tbs_kotallo_skip", null, new double[]{-1722.13291072914, 391.312653769435, 404.777789474833, 1.5}, null},
+                {"bulwark_guards", null, new double[]{-1713.9067993164, 299.763214111328, 445.635046988725, 3}, null},
+                {"tbs_talk_to_kotallo2", null, new double[]{-1729.97919063644, 457.684209887134, 370.633636476527, 1.5}, null},
+                {"loot_the_tremortusk", null, new double[]{-1572.0311859101, 652.102480441332, 383.739666610956, 3}, "cutscene"},
+                {"broken_sky_end", new DeepPointer("HorizonForbiddenWest.exe", GameModule,  0x178, 0x10, 0xE0, 0xF68, 0x321), null, null},
+            // SEEDS OF THE PAST
+                {"green_house", null, new double[]{-2296.29821777344, -324.549560546875, 264.058563187719, 5}, null},
+                {"console1_active", null, new double[]{-2431.87329865314, -180.895613586446, 274.75841699494, 2.5}, null},
+                {"console2_room", null, new double[]{-2432.61199035513, -299.38409430339, 262.721442762085, 2.5}, null},
+                {"console2_active", null, new double[]{-2436.56268157932, -309.137984056258, 262.734527587883, 2.5}, null},
+                {"tunnel1_exit", null, new double[]{-2327.60716285157, -209.519637505797, 261.275722026825, 2.5}, null},
+                {"station_elm_console", null, new double[]{-2374.6553970255, -70.9116399555847, 268.349670410156, 2.5}, null},
+                {"test_station_ivy", null, new double[]{-2448.1122551441, -101.469541747108, 259.844213518525, 2.5}, null},
+                {"recover_demeter", null, new double[]{-2434.22285265303, -152.158308535442, 267.041717529297, 2.5}, null},
+                {"sotp_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame,  0xE0, 0xF40, 0xB00, 0x411), null, null},
+            // CRADLE OF ECHOES
+                {"coe_console2", null, new double[]{543.435203280978, 1292.08648603277, 587.041625976563, 2.5}, null},
+                {"coe_specter2", null, new double[]{484.638608932776, 1024.18652343813, 611.554178953421, 2.5}, null},
+            // THE KULRUT
+                {"ft_memorial_grove", null, new double[]{-536.684509277344, -689.538696289062, 417.407958984376, 3}, null},
+                {"k_talk_to_hekarro", null, new double[]{-709.586461823186, -669.095686835261, 421.782592773438, 3}, null},
+                {"k_machines", null, new double[]{-698.937885912758, -501.705726107, 435.614677124375, 0.5}, null},
+                {"k_Slitherfang", null, new double[]{-707.209045410156, -640.884094238281, 402.438415676355, 0.5}, null},
+                {"recover_aether", null, new double[]{-645.642142567462, -724.19342025944, 410.129646779969, 3}, null},
+                {"kulrut_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x10D0, 0x178, 0x651), null, null},
+            // FARO'S TOMB
+                {"fst_boat", null, new double[]{-2991.05639648438, -1676.1176147461, 256.294574439526, 3}, null},
+                {"fst_legacys_landfall", null, new double[]{-3952.04347568689, -926.8164166615, 260.915409140938, 3}, null},
+                {"fst_talk_to_alva", null, new double[]{-4124.05110842, -756.899763504, 257.224526367, 3}, null},
+                {"fst_entrance_skip", null, new double[]{-4261.75767201338, -806.785997355906, 211.430053710936, 3}, null},
+                {"fst_Corruptors", null, new double[]{-4320.63626606234, -752.726599781282, 195.796744658954, 3}, null},
+                {"fst_omega_clearance", null, new double[]{-4347.25270207781, -701.263439108375, 171.529212629922, 3}, null},
+                {"faros_tomb_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x560, 0x321), null, null},
+            // GEMINI
+                {"g_gemini", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0x4B0, 0xFD8, 0x580, 0x321), null, null},
+                {"g_node1", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE8, 0xFC8, 0xB48, 0xEF1), null, null},
+                {"g_talk_to_beta", null, new double[]{-374.452293072273, -417.939213925904, 327.954232309294, 3}, null},
+            // THE WINGS OF THE TEN
+                {"wott_sunwing_override", null, new double[]{1094.35817246086, -198.300083576356, 633.342505225047, 3}, null},
+                {"wott_memorial_grove", null, new double[]{-413.217704414023, -640.549513548812, 449.7227159445, 5}, null},
+                // {"wott_regalla1", null, new double[]{-737.683959960938, -673.44642496109, 425.838824272156, 3}, "cutscene"},
+                // {"wott_regalla2", null, new double[]{-753.797096789197, -646.943957527048, 418.178100141256, 3}, "cutscene"},
+                // {"wott_regalla3", null, new double[]{-725.179475660616, -637.337163086555, 402.654195853353, 3}, "cutscene"},
+                {"wings_of_the_ten_end", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xF8, 0xED8, 0x4F0, 0xA61), null, null},
+            // SINGULARITY
+                {"s_shield_skip", new DeepPointer("HorizonForbiddenWest.exe", SceneManagerGame, 0xE0, 0x1E8, 0xE18, 0x791), null, null},
+                {"kill_erik", null, new double[]{-1749.25894069672, -2938.75882327557, 275.52651977539, 3}, null},
+                {"s_tower_top", null, new double[]{-1756.16803004627, -2949.95112186803, 385.631804418408, 3}, null},
+                {"s_defeat_tilda", null, new double[]{-1771.61556974602, -2921.03838795219, 380.99396117125, 3}, null}
     };
 
     // Handles the event risen by a checkpoint memory flag when it changes
@@ -407,23 +405,20 @@ init{
                         )
                     ){
                         vars.Funcs.Split(vars.legacyCheckpoints[checkpointQuery.splitName]);
-                        print("SPLIT: " + checkpointQuery.splitName);
                     }
                 }
             }
-            // New checkpoint logic.
-            // Triggered by any memory flag change other than isGod or isLoading.
-            // We check if we are on a loading screen to avoid fake splits when
-            // memory flags are reseted to 1 under some circumstances (Ex. restart from save):
             else if(
+                // Splits only if this segment hasn't been splitted before:
                 !vars.checkpoints[watcher.Name].reachedBefore &&
+                // We check if we are on a loading screen to avoid fake splits when
+                // memory flags are reseted to 1 under some circumstances (Ex. restart from save):
                 vars.isLoading == 0 &&
                 // Splits only if the user has enabled this split
                 // in the autosplitter settings:
                 settings[watcher.Name]
             ){
                 vars.Funcs.Split(vars.checkpoints[watcher.Name]);
-                print("SPLIT: " + watcher.Name);
             }
         }
     };
@@ -446,26 +441,27 @@ init{
     );
 
     dynamic tmp = null;
-    // Initialize autosplit settings and checkpoint coordinates
+    // Initialize checkpoint coordinates and pointers
     for (int i = 0; i < _checkpoints.GetLength(0); i++){
-        // Add checkpoint to the list (if available)
         tmp = new ExpandoObject();
+        tmp.Name = _checkpoints[i, 0];
         tmp.Type = _checkpoints[i, 3] != null ? _checkpoints[i, 3] : "split";
         // Has the checkpoint already been reached before?
         tmp.reachedBefore = false;
+
         // Memory flagged checkpoint:
-            if (_checkpoints[i, 1] != null){
-                // Add a memory wathcer to detect checkpoit activation:
-                vars.memWatchers.Add(
-                    new MemoryWatcher<byte>(_checkpoints[i, 1]){Name = _checkpoints[i, 0]}
-                );
-                vars.checkpoints.Add(_checkpoints[i, 0], tmp);
-            }
-            // Legacy checkpoint (position based):
-            else if(_checkpoints[i, 2] != null){
-                tmp.geolocation = _checkpoints[i, 2];
-                vars.legacyCheckpoints.Add(_checkpoints[i, 0], tmp);
-            }
+        if (_checkpoints[i, 1] != null){
+            // Add a memory watcher to detect checkpoit activation:
+            vars.memWatchers.Add(
+                new MemoryWatcher<byte>(_checkpoints[i, 1]){Name = _checkpoints[i, 0]}
+            );
+            vars.checkpoints.Add(_checkpoints[i, 0], tmp);
+        }
+        // Legacy checkpoint (position based):
+        else if(_checkpoints[i, 2] != null){
+            tmp.geolocation = _checkpoints[i, 2];
+            vars.legacyCheckpoints.Add(_checkpoints[i, 0], tmp);
+        }
     }
 } // init ends
 

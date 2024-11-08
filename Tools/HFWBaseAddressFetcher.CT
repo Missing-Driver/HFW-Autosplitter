@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"Fetch base addresses"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{$lua}
+if syntaxcheck then return end
+[ENABLE]
+  print(string.format("Fetching Base Addresses..."))
+
+  local aobList = {
+  "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 06 89 98 68 38 00 00",
+  "48 8B 0D ?? ?? ?? ?? 48 85 C9 75 08 33 C0 48 83 C4 30 5F C3",
+  "48 8B 05 ?? ?? ?? ?? 0F B6 80 70 06 00 00",
+  "48 8B 05 ?? ?? ?? ?? 80 78 2C 00 75 ?? 48 8D 91",
+  "48 8B 05 ?? ?? ?? ?? 48 85 C0 75 1A 48 8B 0D ?? ?? ?? ?? 48 8B 89 88 00 00 00",
+  "48 8B 05 ?? ?? ?? ?? 48 8B F9 48 8B 0D ?? ?? ?? ?? 48 89 74 24 38 48 8B B0 20 01 00 00",
+  "48 8B 05 ?? ?? ?? ?? 48 8B F9 48 8B 0D ?? ?? ?? ?? 48 89 74 24 38 48 8B B0 20 01 00 00 80 79 28 00",
+  -- 48 8B 05 ?? ?? ?? 07 8B F3 81 CE 00 84 00 00 80 B8 D0 00 00 00 00 0F 45 F3 84 C9 0F 84 AC 04 00 00 8B FE C5 78 29 B4 24 00 01 00 00 81 CF 00 42
+  "48 8B 05 ?? ?? ?? 07 8B F3 81 CE 00 84 00 00 80 B8 D0"
+  }
+  local aobNames = {
+  "Player",
+  "PlayerManagerGame",
+  "GameModule",
+  "Debug Settings",
+  "Difficulty Manager",
+  "Unknown",
+  "GameLibSystemAssets",
+  "SceneManagerGame"
+  }
+  local xbase = readInteger(process)and GetAddress(process)
+  print(string.format("Base: %X",xbase))
+  print("***********************************************************************")
+  for i = 1, #aobList do
+        local aob = AOBScan(aobList[i],"+X*C*W")
+        local instruct = getAddressSafe(aob[0])
+        local distance = getAddressSafe(instruct)+3
+        distance = readInteger(distance)
+
+        local instructSize = getInstructionSize(instruct)
+
+        local address = (instruct + distance + instructSize) - xbase
+        print(string.format("%s: %s+%X",aobNames[i],process,address))
+  end
+
+
+
+[DISABLE]
+
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+  <LuaScript>
+</LuaScript>
+</CheatTable>
